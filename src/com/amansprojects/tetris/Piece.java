@@ -1,5 +1,7 @@
 package com.amansprojects.tetris;
 
+import java.util.Arrays;
+
 public class Piece {
     public final PieceType type;
     public int[] origin;
@@ -7,7 +9,7 @@ public class Piece {
 
     public Piece(PieceType t) {
         type = t;
-        origin = new int[] { t.spawn[0], t.spawn[1] };
-        bits = t.bits;
+        origin = Arrays.copyOf(t.spawn, 2);
+        bits = Arrays.stream(t.bits).map(int[]::clone).toArray(int[][]::new);
     }
 }
