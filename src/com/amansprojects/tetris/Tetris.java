@@ -1,7 +1,6 @@
 package com.amansprojects.tetris;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -27,26 +26,8 @@ public class Tetris {
                         case "x" -> {
                             if (canMove(current, 1, 0)) current.origin[0] += 1;
                         }
-                        case "a" -> {
-                            if (current.type == PieceType.O) break;
-                            int[][] backup = Arrays.stream(current.bits).map(int[]::clone).toArray(int[][]::new);
-                            for (int[] bit : current.bits) {
-                                int temp = bit[1];
-                                bit[1] = 2 - bit[0];
-                                bit[0] = temp;
-                            }
-                            if (!canMove(current, 0, 0)) current.bits = backup;
-                        }
-                        case "d" -> {
-                            if (current.type == PieceType.O) break;
-                            int[][] backup = Arrays.stream(current.bits).map(int[]::clone).toArray(int[][]::new);
-                            for (int[] bit : current.bits) {
-                                int temp = bit[1];
-                                bit[1] = bit[0];
-                                bit[0] = 2 - temp;
-                            }
-                            if (!canMove(current, 0, 0)) current.bits = backup;
-                        }
+                        case "a" -> current.rotate(-1);
+                        case "d" -> current.rotate(1);
                     }
                 } catch (StringIndexOutOfBoundsException | ArrayIndexOutOfBoundsException ignored) { }
             }
@@ -97,7 +78,7 @@ public class Tetris {
         }
     }
 
-    private static boolean canMove(Piece p, int xOffset, int yOffset) {
+    static boolean canMove(Piece p, int xOffset, int yOffset) {
         for (int[] bit : p.bits) {
             int x = p.origin[0] + xOffset + bit[0];
             int y = p.origin[1] + yOffset + bit[1];
