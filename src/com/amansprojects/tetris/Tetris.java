@@ -1,20 +1,19 @@
 package com.amansprojects.tetris;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class Tetris {
     private static Piece current;
-    private static Piece[][] board;
+    private static final PieceType[][] board = new PieceType[20][10];
 
     public static void main(String[] args) throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
         Random random = new Random();
         current = new Piece(PieceType.values()[random.nextInt(6)]);
-        ArrayList<Piece> pieces = new ArrayList<>();
-        pieces.add(current);
 
         new Thread(() -> {
             while (true) {
@@ -34,23 +33,20 @@ public class Tetris {
         }).start();
 
         while (true) {
-            board = new Piece[20][10];
+            PieceType[][] boardWithCurrent = Arrays.stream(board).map(PieceType[]::clone).toArray(PieceType[][]::new);
             StringBuilder toPrint = new StringBuilder();
 
-            for (Piece piece : pieces) {
-                for (int[] bit : piece.bits) {
-                    int x = piece.origin[0] + bit[0];
-                    if (x < 0) continue;
-                    int y = piece.origin[1] + bit[1];
-                    if (y < 0) continue;
-                    board[y][x] = piece;
-                }
+            for (int[] bit : current.bits) {
+                int x = current.origin[0] + bit[0];
+                int y = current.origin[1] + bit[1];
+                if (y < 0) continue;
+                boardWithCurrent[y][x] = current.type;
             }
-            for (Piece[] row : board) {
-                for (Piece cell : row) {
+            for (PieceType[] row : boardWithCurrent) {
+                for (PieceType cell : row) {
                     String s = "  ";
                     if (cell != null) {
-                        switch (cell.type) {
+                        switch (cell) {
                             case I -> s = "\u001b[46m  ";
                             case J -> s = "\u001b[44m  ";
                             case L -> s = "\u001b[47m  ";
@@ -65,6 +61,14 @@ public class Tetris {
                 }
                 toPrint.append("\n");
             }
+            for (int i = 0; i < 20; i++) {
+                if (Arrays.stream(board[i]).allMatch(Objects::nonNull)) {
+                    board[i] = new PieceType[10];
+                    for (int x = i; x >= 0; x--) {
+                        board[x + 1] = Arrays.copyOf(board[x], 10);
+                    }
+                }
+            }
             System.out.println(toPrint);
             TimeUnit.MILLISECONDS.sleep(500);
             System.out.print("\u001B[2J");
@@ -72,8 +76,10 @@ public class Tetris {
             if (canMove(current, 0, 1)) {
                 current.origin[1] += 1;
             } else {
+                for (int[] bit : current.bits) {
+                    board[current.origin[1] + bit[1]][current.origin[0] + bit[0]] = current.type;
+                }
                 current = new Piece(PieceType.values()[random.nextInt(6)]);
-                pieces.add(current);
             }
         }
     }
@@ -84,7 +90,7 @@ public class Tetris {
             int y = p.origin[1] + yOffset + bit[1];
             if (y < 0) continue;
             if (y >= 19) return false;
-            if (board[y][x] != null && board[y][x] != p) {
+            if (board[y][x] != null) {
                 return false;
             }
         }
