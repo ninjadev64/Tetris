@@ -11,11 +11,11 @@ public class Tetris {
     private static final PieceType[][] board = new PieceType[20][10];
 
     public static void main(String[] args) throws InterruptedException {
-        Scanner scanner = new Scanner(System.in);
         Random random = new Random();
         current = new Piece(PieceType.values()[random.nextInt(6)]);
 
         new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
             while (true) {
                 try {
                     switch (scanner.nextLine().substring(0, 1).toLowerCase().trim()) {
@@ -64,7 +64,7 @@ public class Tetris {
             for (int i = 0; i < 20; i++) {
                 if (Arrays.stream(board[i]).allMatch(Objects::nonNull)) {
                     board[i] = new PieceType[10];
-                    for (int x = i; x >= 0; x--) {
+                    for (int x = i - 1; x >= 0; x--) {
                         board[x + 1] = Arrays.copyOf(board[x], 10);
                     }
                 }
