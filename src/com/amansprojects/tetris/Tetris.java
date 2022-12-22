@@ -69,18 +69,19 @@ public class Tetris {
                     }
                 }
             }
-            System.out.println(toPrint);
+            System.out.print(toPrint);
             TimeUnit.MILLISECONDS.sleep(500);
-            System.out.print("\u001B[2J");
 
             if (canMove(current, 0, 1)) {
                 current.origin[1] += 1;
             } else {
                 for (int[] bit : current.bits) {
+                    if (current.origin[1] + bit[1] < 0) System.exit(0);
                     board[current.origin[1] + bit[1]][current.origin[0] + bit[0]] = current.type;
                 }
                 current = new Piece(PieceType.values()[random.nextInt(6)]);
             }
+            System.out.print("\u001B[2J");
         }
     }
 
